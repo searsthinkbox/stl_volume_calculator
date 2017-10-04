@@ -1,0 +1,26 @@
+{
+  "name": "thinkbox_stl_volume_calculator",
+  "version": "0.1.0",
+  "description": "Volume calculator for use at think[box]",
+  "author": "Paul Nettleton",
+  "main": "main.js",
+  "dependencies": {
+    "mathjs": "^3.16.4",
+    "parse-stl": "^1.0.2",
+    "stl": "^1.1.1",
+    "stl-reader": "^3.0.1"
+  },
+  "build": {
+    "appId": "com.firebird.${name}",
+    "mac": {
+      "category": "public.app-category.utilities"
+    }
+  },
+  "scripts": {
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron-builder": "^19.33.0"
+  }
+}
