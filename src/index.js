@@ -54,7 +54,7 @@ function handleFileSelect(event) {
 
 function pushFileNamesToWindow(file_names) {
   var output = [];
-  for (var i = 0, file; file_name = file_names[i]; i++) {
+  for (var i = 0, file_name; file_name = file_names[i]; i++) {
     output.push('<li>', file_name, '  ',
     "<select id='file_", i,
     "'> <option value='in'>in</option> <option value='mm'>mm</option> </select>",
