@@ -80,6 +80,7 @@ function handleShowPics(event) {
   var scenes = [];
   var cameras = [];
   var renderers = [];
+  var cubes = [];
   const CONTAINER_WIDTH = '100px';
   const CONTAINER_HEIGHT = '100px';
 
@@ -98,17 +99,21 @@ function handleShowPics(event) {
     //add geometry
     var geometry = new THREE.BoxGeometry(1,1,1);
     var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var cube = new THREE.Mesh(geometry, material);
-    scenes[i].add(cube);
+    cubes[i] = new THREE.Mesh(geometry, material);
+    scenes[i].add(cubes[i]);
 
     cameras[i].position.z = 5;
+  }
 
-    function animate() {
-      requestAnimationFrame(animate);
+  function animate() {
+    requestAnimationFrame(animate);
+    for (var i = 0; i < renderers.length; i++) {
+      cubes[i].rotation.x += 0.1;
+      cubes[i].rotation.y += 0.1;
       renderers[i].render(scenes[i],cameras[i]);
     }
-    animate();
   }
+  animate();
 }
 
 //calculate STL Volume
