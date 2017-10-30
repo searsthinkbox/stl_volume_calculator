@@ -11,7 +11,8 @@
     "mathjs": "^3.16.4",
     "parse-stl": "^1.0.2",
     "stl": "^1.1.1",
-    "stl-reader": "^3.0.1"
+    "stl-reader": "^3.0.1",
+    "three": "^0.87.1"
   },
   "build": {
     "appId": "com.firebird.${name}",

@@ -1,4 +1,5 @@
 const {ipcRenderer} = require('electron');
+const THREE = require('three');
 
 let files;
 
@@ -58,9 +59,12 @@ function pushFileNamesToWindow(file_names) {
     output.push('<li>', file_name, '  ',
     "<select id='file_", i,
     "'> <option value='in'>in</option> <option value='mm'>mm</option> </select>",
+    "<div id='file_pic_", i, "'> </div>",
     '</li>');
   }
-  document.getElementById('file_list').innerHTML = '<ul>' + output.join('') + '</ul>';
+  document.getElementById('file_list').innerHTML = '<ul>' + output.join('') + '</ul>'
+    + '<input type="button" id="show_pics" value="Show Pictures of Selected Files"/>';
+  document.getElementById('show_pics').addEventListener('click', handleShowPics, false);
 }
 
 //file drag and drop
@@ -68,6 +72,43 @@ function handleDragOver(event) {
   event.stopPropagation();
   event.preventDefault();
   event.dataTransfer.dropEffect = 'copy';
+}
+
+//Show Pictures of Selected files
+function handleShowPics(event) {
+  //set up
+  var scenes = [];
+  var cameras = [];
+  var renderers = [];
+  const CONTAINER_WIDTH = '100px';
+  const CONTAINER_HEIGHT = '100px';
+
+  for (var i = 0, file; file = files[i]; i++) {
+    var container = document.getElementById('file_pic_' + i);
+    container.style.width = CONTAINER_WIDTH;
+    container.style.height = CONTAINER_HEIGHT;
+
+    //set scene
+    scenes[i] = new THREE.Scene();
+    cameras[i] = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+    renderers[i] = new THREE.WebGLRenderer();
+    renderers[i].setSize(container.offsetWidth, container.offsetHeight);
+    container.appendChild(renderers[i].domElement);
+
+    //add geometry
+    var geometry = new THREE.BoxGeometry(1,1,1);
+    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    var cube = new THREE.Mesh(geometry, material);
+    scenes[i].add(cube);
+
+    cameras[i].position.z = 5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderers[i].render(scenes[i],cameras[i]);
+    }
+    animate();
+  }
 }
 
 //calculate STL Volume
@@ -82,6 +123,7 @@ function handleSTLCalc(event) {
       var output = 'Volumes\n<ul>';
       for (var i = 0; i < volumes.length; i++) {
         output += '<li>' + volumes[i].name + ' - ' +  volumes[i].volume + ' in<sup>3</sup>';
+        //warning for small or large volume
         if (volumes[i].volume < 1 || volumes[i].volume > 50) {
           output += "<br><img src='warning.svg' alt='Warning' style='height:15px;display:inline'> Warning: Your units may be wrong."
         }
