@@ -91,6 +91,7 @@ function handleSTLCalc(event) {
     document.body.style.cursor = 'wait';
 
     ipcRenderer.once('volume_done', (event, volumes) => {
+      var totalVolume = 0;
       var output = 'Volumes\n<ul>';
       for (var i = 0; i < volumes.length; i++) {
         output += '<li>' + volumes[i].name + ' - ' +  volumes[i].volume + ' in<sup>3</sup>';
@@ -98,7 +99,9 @@ function handleSTLCalc(event) {
           output += "<br><img src='warning.svg' alt='Warning' style='height:15px;display:inline'> Warning: Your units may be wrong."
         }
         output += '</li>\n';
+        totalVolume += volumes[i].volume;
       }
+      output += '<br>Total Volume: ' + totalVolume + ' in<sup>3</sup>';
       output += '</ul>';
       document.getElementById('stl_volume').innerHTML = output;
       document.body.style.cursor = 'default';
