@@ -54,13 +54,25 @@ function handleFileSelect(event) {
 
 function pushFileNamesToWindow(file_names) {
   var output = [];
+
+  //change all units option
+  output.push("Change All Units: <select id='default_units'> <option value=''></option> <option value='in'>in</option> <option value='mm'>mm</option> </select>");
+
   for (var i = 0, file_name; file_name = file_names[i]; i++) {
-    output.push('<li>', file_name, '  ',
+    output.push('<li>', file_name, '   ',
     "<select id='file_", i,
     "'> <option value='in'>in</option> <option value='mm'>mm</option> </select>",
     '</li>');
   }
   document.getElementById('file_list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+  //listener for changing all units
+  document.getElementById('default_units').addEventListener('change', function(){
+    var selectedUnits = document.getElementById('default_units').value;
+    for (var i = 0; i < files.length; i++) {
+      document.getElementById('file_' + i).value = selectedUnits;
+    }
+  });
 }
 
 //file drag and drop
