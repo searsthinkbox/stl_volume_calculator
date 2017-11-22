@@ -1,5 +1,7 @@
 const {ipcRenderer} = require('electron');
 const THREE = require('three');
+const STLLoader = require('three-stl-loader')(THREE);
+const OrbitControls = require('three-orbit-controls')(THREE);
 
 let files;
 
@@ -80,40 +82,64 @@ function handleShowPics(event) {
   var scenes = [];
   var cameras = [];
   var renderers = [];
-  var cubes = [];
-  const CONTAINER_WIDTH = '100px';
-  const CONTAINER_HEIGHT = '100px';
+  var meshes = [];
+  var controls = [];
+  var pointLights = [];
+  var loader = new STLLoader();
+  const CONTAINER_WIDTH = '600px';
+  const CONTAINER_HEIGHT = '600px';
 
   for (var i = 0, file; file = files[i]; i++) {
     var container = document.getElementById('file_pic_' + i);
     container.style.width = CONTAINER_WIDTH;
     container.style.height = CONTAINER_HEIGHT;
 
-    //set scene
-    scenes[i] = new THREE.Scene();
-    cameras[i] = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+    //set renderers
     renderers[i] = new THREE.WebGLRenderer();
     renderers[i].setSize(container.offsetWidth, container.offsetHeight);
     container.appendChild(renderers[i].domElement);
 
-    //add geometry
-    var geometry = new THREE.BoxGeometry(1,1,1);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    cubes[i] = new THREE.Mesh(geometry, material);
-    scenes[i].add(cubes[i]);
+    //set scene
+    scenes[i] = new THREE.Scene();
+    scenes[i].background = new THREE.Color(0x333333);
 
-    cameras[i].position.z = 5;
+    //set lights
+    scenes[i].add(new THREE.AmbientLight(0xffffff, 0.5));
+    pointLights[i] = new THREE.PointLight(0xffffff, 0.7);
+    scenes[i].add(pointLights[i]);
+
+    //set cameras
+    cameras[i] = new THREE.PerspectiveCamera(35, container.offsetWidth / container.offsetHeight, 1, 500);
+    cameras[i].up.set(0,0,1);
+    cameras[i].position.set(-80, -90, 150);
+    scenes[i].add(cameras[i]);
+
+    //add controls
+    controls[i] = new OrbitControls(cameras[i], renderers[i].domElement);
+		controls[i].addEventListener('change', render);
+		controls[i].minDistance = 50;
+		controls[i].maxDistance = 300;
+		controls[i].target.set(80, 65, 20);
+		controls[i].update();
+
+    //add geometry
+    var scene = scenes[i];
+    loader.load(file.path, function (geometry) {
+      scene.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: new THREE.Color(0xb1b1ff)})));
+      render();
+    });
   }
 
-  function animate() {
-    requestAnimationFrame(animate);
+  function render() {
     for (var i = 0; i < renderers.length; i++) {
-      cubes[i].rotation.x += 0.1;
-      cubes[i].rotation.y += 0.1;
+      //match light position to camera position
+      pointLights[i].position.x = cameras[i].getWorldPosition().x;
+      pointLights[i].position.y = cameras[i].getWorldPosition().y;
+      pointLights[i].position.z = cameras[i].getWorldPosition().z;
+
       renderers[i].render(scenes[i],cameras[i]);
     }
   }
-  animate();
 }
 
 //calculate STL Volume
