@@ -5,6 +5,11 @@ const OrbitControls = require('three-orbit-controls')(THREE);
 
 let files;
 
+//sleep function
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 window.onload = function () {
   //file load
   document.getElementById('files').addEventListener('change', handleFileSelect, false);
@@ -77,7 +82,7 @@ function handleDragOver(event) {
 }
 
 //Show Pictures of Selected files
-function handleShowPics(event) {
+async function handleShowPics(event) {
   //set up
   var scenes = [];
   var cameras = [];
@@ -124,10 +129,15 @@ function handleShowPics(event) {
 
     //add geometry
     var scene = scenes[i];
+    var doneLoading = false;
     loader.load(file.path, function (geometry) {
       scene.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: new THREE.Color(0xb1b1ff)})));
       render();
+      doneLoading = true;
     });
+    while (!doneLoading) {
+      await sleep(50);
+    }
   }
 
   function render() {
