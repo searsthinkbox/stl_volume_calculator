@@ -113,31 +113,36 @@ async function handleShowPics(event) {
     pointLights[i] = new THREE.PointLight(0xffffff, 0.7);
     scenes[i].add(pointLights[i]);
 
-    //set cameras
-    cameras[i] = new THREE.PerspectiveCamera(35, container.offsetWidth / container.offsetHeight, 1, 500);
-    cameras[i].up.set(0,0,1);
-    cameras[i].position.set(-80, -90, 150);
-    scenes[i].add(cameras[i]);
-
-    //add controls
-    controls[i] = new OrbitControls(cameras[i], renderers[i].domElement);
-		controls[i].addEventListener('change', render);
-		controls[i].minDistance = 50;
-		controls[i].maxDistance = 300;
-		controls[i].target.set(80, 65, 20);
-		controls[i].update();
-
     //add geometry
     var scene = scenes[i];
     var doneLoading = false;
+    var boundingSphereRadius;
     loader.load(file.path, function (geometry) {
+      geometry.center();
+      geometry.computeBoundingSphere();
+      boundingSphereRadius = geometry.boundingSphere.radius;
       scene.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: new THREE.Color(0xb1b1ff)})));
-      render();
       doneLoading = true;
     });
     while (!doneLoading) {
       await sleep(50);
     }
+
+    //set cameras
+    cameras[i] = new THREE.PerspectiveCamera(35, container.offsetWidth / container.offsetHeight, 1, 500);
+    cameras[i].up.set(0,0,1);
+    cameras[i].position.set(-3*boundingSphereRadius, -3*boundingSphereRadius, 1.5*boundingSphereRadius);
+    scenes[i].add(cameras[i]);
+
+    //add controls
+    controls[i] = new OrbitControls(cameras[i], renderers[i].domElement);
+		controls[i].addEventListener('change', render);
+		controls[i].minDistance = 1;
+		controls[i].maxDistance = 3.5*boundingSphereRadius;
+		controls[i].target.set(0, 0, 0);
+		controls[i].update();
+
+    render();
   }
 
   function render() {
