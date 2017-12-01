@@ -109,8 +109,8 @@ async function handleShowPics(event) {
     scenes[i].background = new THREE.Color(0x333333);
 
     //set lights
-    scenes[i].add(new THREE.AmbientLight(0xffffff, 0.5));
-    pointLights[i] = new THREE.PointLight(0xffffff, 0.7);
+    scenes[i].add(new THREE.AmbientLight(0xffffff, 0.3));
+    pointLights[i] = new THREE.PointLight(0xffffff, 0.7, 0, 2);
     scenes[i].add(pointLights[i]);
 
     //add geometry
@@ -121,7 +121,7 @@ async function handleShowPics(event) {
       geometry.center();
       geometry.computeBoundingSphere();
       boundingSphereRadius = geometry.boundingSphere.radius;
-      scene.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: new THREE.Color(0xb1b1ff)})));
+      scene.add(new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({color: new THREE.Color(0xb1b1ff), metalness: 0.25})));
       doneLoading = true;
     });
     while (!doneLoading) {
