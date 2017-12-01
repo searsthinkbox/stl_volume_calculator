@@ -62,16 +62,29 @@ function handleFileSelect(event) {
 
 function pushFileNamesToWindow(file_names) {
   var output = [];
+
+  //change all units option
+  output.push("Change All Units: <select id='default_units'> <option value=''></option> <option value='in'>in</option> <option value='mm'>mm</option> </select>");
+
   for (var i = 0, file_name; file_name = file_names[i]; i++) {
-    output.push('<li>', file_name, '  ',
+    output.push('<li>', file_name, '   ',
     "<select id='file_", i,
     "'> <option value='in'>in</option> <option value='mm'>mm</option> </select>",
     "<div id='file_pic_", i, "'> </div>",
     '</li>');
   }
+
   document.getElementById('file_list').innerHTML = '<ul>' + output.join('') + '</ul>'
     + '<input type="button" id="show_pics" value="Show Pictures of Selected Files"/>';
   document.getElementById('show_pics').addEventListener('click', handleShowPics, false);
+
+  //listener for changing all units
+  document.getElementById('default_units').addEventListener('change', function(){
+    var selectedUnits = document.getElementById('default_units').value;
+    for (var i = 0; i < files.length; i++) {
+      document.getElementById('file_' + i).value = selectedUnits;
+    }
+  });
 }
 
 //file drag and drop
@@ -166,6 +179,7 @@ function handleSTLCalc(event) {
     document.body.style.cursor = 'wait';
 
     ipcRenderer.once('volume_done', (event, volumes) => {
+      var totalVolume = 0;
       var output = 'Volumes\n<ul>';
       for (var i = 0; i < volumes.length; i++) {
         output += '<li>' + volumes[i].name + ' - ' +  volumes[i].volume + ' in<sup>3</sup>';
@@ -174,7 +188,9 @@ function handleSTLCalc(event) {
           output += "<br><img src='warning.svg' alt='Warning' style='height:15px;display:inline'> Warning: Your units may be wrong."
         }
         output += '</li>\n';
+        totalVolume += volumes[i].volume;
       }
+      output += '<br>Total Volume: ' + totalVolume + ' in<sup>3</sup>';
       output += '</ul>';
       document.getElementById('stl_volume').innerHTML = output;
       document.body.style.cursor = 'default';
